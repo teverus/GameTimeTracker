@@ -1,5 +1,11 @@
+TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 GAME_TIME = "GameTime"
 FILES = "Files"
+
+START = "start"
+FINISH = "finish"
+PROCESS_IS_ACTIVE = "process is active"
 
 
 class Column:
@@ -9,3 +15,7 @@ class Column:
     SPENT = "Spent"
 
     ALL = [NAME, START, FINISH, SPENT]
+
+
+APP_NAME = "Notepad"
+APP_PROCESS = "notepad.exe"

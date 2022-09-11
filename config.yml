@@ -1,0 +1,5 @@
+applications:
+  - name: Notepad
+    process: notepad.exe
+  - name: Notepad ++
+    process: notepad++.exe
