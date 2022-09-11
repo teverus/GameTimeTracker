@@ -1,6 +1,10 @@
 applications:
   # Each application MUST have a name and a process name
+  # - name: Application
+  # - process: application.exe
   - name: Notepad
     process: notepad.exe
   - name: Notepad ++
     process: notepad++.exe
+  - name: Telegram
+    process: Telegram.exe

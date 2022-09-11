@@ -45,8 +45,7 @@ class Application:
 
                         self.stats[app_name][PROCESS_IS_ACTIVE] = True
 
-                        start_time = self.stats[app_name][START]
-                        print(f'"{app_name}" was started at {start_time}')
+                        print(f'[{app_name}] Start @ {self.stats[app_name][START]}')
 
                 else:
                     if self.stats[app_name][PROCESS_IS_ACTIVE]:
@@ -56,8 +55,7 @@ class Application:
 
                         self.stats[app_name][PROCESS_IS_ACTIVE] = False
 
-                        finish_time = self.stats[app_name][FINISH]
-                        print(f'"{app_name}" was terminated at {finish_time}')
+                        print(f'[{app_name}] Close @ {self.stats[app_name][FINISH]}')
 
                 sleep(self.polling_timeout)
 
