@@ -9,7 +9,7 @@ echo Activating virtual environment. Please stand by...
 set venv_name=venv
 py -m venv %venv_name%
 call %venv_name%\Scripts\activate
-pip install -r requirements.txt 1>nul 2>nul
+pip install -q -r requirements.txt
 
 : ==================================
 : Starting the application
