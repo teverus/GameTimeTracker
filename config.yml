@@ -1,4 +1,5 @@
 applications:
+  # Each application MUST have a name and a process name
   - name: Notepad
     process: notepad.exe
   - name: Notepad ++

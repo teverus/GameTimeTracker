@@ -1,3 +1,4 @@
+import os
 from datetime import datetime as dt
 from time import sleep
 
@@ -24,6 +25,10 @@ class Application:
 
         self.applications = self.get_applications()
 
+        os.system("cls")
+        for app in self.applications:
+            print(f'''Tracking "{app['name']}" with process "{app['process']}"''')
+
         while True:
 
             for application in self.applications:
@@ -40,6 +45,9 @@ class Application:
 
                         self.stats[app_name][PROCESS_IS_ACTIVE] = True
 
+                        start_time = self.stats[app_name][START]
+                        print(f'"{app_name}" was started at {start_time}')
+
                 else:
                     if self.stats[app_name][PROCESS_IS_ACTIVE]:
                         self.stats[app_name][FINISH] = self.get_time()
@@ -47,6 +55,9 @@ class Application:
                         self.record_time_spent(app_name)
 
                         self.stats[app_name][PROCESS_IS_ACTIVE] = False
+
+                        finish_time = self.stats[app_name][FINISH]
+                        print(f'"{app_name}" was terminated at {finish_time}')
 
                 sleep(self.polling_timeout)
 
