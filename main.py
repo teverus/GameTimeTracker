@@ -27,6 +27,7 @@ class Application:
         self.polling_timeout = 1
         self.stats = {}
         self.applications = self.get_applications()
+        self.table = None
 
         self.show_application_stats()
         self.start_tracking_applications()
@@ -46,16 +47,13 @@ class Application:
         # TODO Добавить заголовки колонок
         # TODO Можно не указывать table_width
 
-        table = BaseTable(
-            table_title="Hello world",
-            rows=[["Hello", "100", "Yes"], ["world", "222", " "]],
-            table_width=101
-        ).print_table()
-        a = 1
+        self.table = BaseTable(
+            rows=[[name, time, " "] for name, time in BigDict.items()],
+            table_width=71
+        )
+        self.table.print_table()
 
     def start_tracking_applications(self):
-        for app in self.applications:
-            print(f'''Tracking "{app[NAME]}" with process "{app[PROCESS]}"''')
 
         while True:
 

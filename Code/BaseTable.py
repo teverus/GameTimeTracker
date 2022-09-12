@@ -21,14 +21,14 @@ class BaseTable:
         self,
         # Rows
         rows,
-        rows_top_border="-",
-        rows_bottom_border="-",
-        rows_centered=False,
+        rows_top_border="=",
+        rows_bottom_border="=",
+        rows_centered=True,
         # Table title
         table_title="",
         table_title_centered=True,
         table_title_caps=True,
-        table_title_top_border="-",
+        table_title_top_border="=",
         # General table
         table_width=None,
         highlight=None,
@@ -192,7 +192,8 @@ class BaseTable:
                 if self.table_width:
                     diff = actual_width % self.max_columns
                     if diff:
-                        raise Exception(f"Make table_width + {self.max_columns - diff}")
+                        proper_width = self.table_width + (self.max_columns - diff)
+                        raise Exception(f"Make table_width = {proper_width}")
                     else:
                         per = int(actual_width / self.max_columns)
                 else:
