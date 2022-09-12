@@ -6,5 +6,3 @@ applications:
     process: notepad.exe
   - name: Notepad ++
     process: notepad++.exe
-  - name: Telegram
-    process: Telegram.exe
