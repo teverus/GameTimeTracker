@@ -7,7 +7,7 @@ import psutil
 import yaml
 from pandas import DataFrame
 
-from Code.BaseTable import BaseTable
+from Code.BaseTable import BaseTable, ColumnWidth
 from Code.constants import (
     Column,
     GAME_TIME,
@@ -15,9 +15,18 @@ from Code.constants import (
     TIME_FORMAT,
     PROCESS_IS_ACTIVE,
     START,
-    FINISH, NAME, PROCESS,
+    FINISH,
+    NAME,
+    PROCESS,
+    LAST_START,
+    LAST_FINISH,
+    TOTAL,
 )
 from Code.functions.db import append_to_table, update_a_table, read_table
+
+
+# TODO Добавить заголовки колонок
+# TODO Можно не указывать table_width
 
 
 class Application:
@@ -26,30 +35,37 @@ class Application:
 
         self.polling_timeout = 1
         self.stats = {}
+        self.df = read_table(GAME_TIME, FILES)
         self.applications = self.get_applications()
+        self.stats_v2 = {
+            application: {LAST_START: "", LAST_FINISH: ""}
+            for application in sorted([a[NAME] for a in self.applications])
+        }
         self.table = None
 
         self.show_application_stats()
         self.start_tracking_applications()
 
     def show_application_stats(self):
-        df = read_table(GAME_TIME, FILES)
-        BigDict = {}
-        for application in self.applications:
-            app_name = application[NAME]
-            time_spent_stats = df.loc[df.Name == app_name].Spent
-            time_spent = sum([self.get_time_in_seconds(t) for t in time_spent_stats])
-            hours = int(time_spent / 3600)
-            minutes = int((time_spent - (hours * 3600)) / 60)
-            seconds = time_spent - (hours * 3600) - (minutes * 60)
-            BigDict[app_name] = f"{hours:02}:{minutes:02}:{seconds:02}"
 
-        # TODO Добавить заголовки колонок
-        # TODO Можно не указывать table_width
+        self.get_total_time_for_each_game()
+        self.get_last_start_and_finish_time_for_each_game()
+
+        rows = [
+            [key, value[TOTAL], value[LAST_START], value[LAST_FINISH]]
+            for key, value in self.stats_v2.items()
+        ]
 
         self.table = BaseTable(
-            rows=[[name, time, " "] for name, time in BigDict.items()],
-            table_width=71
+            table_title="Game time statistics",
+            rows=rows,
+            table_width=91,
+            column_widths={
+                0: ColumnWidth.FULL,
+                1: ColumnWidth.FIT,
+                2: ColumnWidth.FIT,
+                3: ColumnWidth.FIT,
+            },
         )
         self.table.print_table()
 
@@ -136,6 +152,24 @@ class Application:
         delta = timedelta(hours=time.hour, minutes=time.minute, seconds=time.second)
 
         return int(delta.total_seconds())
+
+    def get_total_time_for_each_game(self):
+        for application in self.applications:
+            app_name = application[NAME]
+            time_spent_stats = self.df.loc[self.df.Name == app_name].Spent
+            time_spent = sum([self.get_time_in_seconds(t) for t in time_spent_stats])
+            hours = int(time_spent / 3600)
+            minutes = int((time_spent - (hours * 3600)) / 60)
+            seconds = time_spent - (hours * 3600) - (minutes * 60)
+            self.stats_v2[app_name][TOTAL] = f"{hours:02}:{minutes:02}:{seconds:02}"
+
+    def get_last_start_and_finish_time_for_each_game(self):
+        for application in self.stats_v2:
+            last_start = self.df.loc[self.df.Name == application].Start.values[-1]
+            last_finish = self.df.loc[self.df.Name == application].Finish.values[-1]
+
+            self.stats_v2[application][LAST_START] = last_start
+            self.stats_v2[application][LAST_FINISH] = last_finish
 
 
 if __name__ == "__main__":

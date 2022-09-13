@@ -159,6 +159,10 @@ class BaseTable:
         return df
 
     def get_column_widths(self, target_widths):
+
+        if len(target_widths) != len(self.rows[0]):
+            raise Exception("\nColumn number and column widths number don't match!!!")
+
         actual_width = self.table_width - (((self.max_columns - 1) * 3) + 2)
         column_widths = {}
 

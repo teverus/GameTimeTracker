@@ -6,8 +6,12 @@ FILES = "Files"
 START = "start"
 FINISH = "finish"
 PROCESS_IS_ACTIVE = "process is active"
+
 NAME = "name"
 PROCESS = "process"
+TOTAL = "total"
+LAST_START = "last start"
+LAST_FINISH = "last finish"
 
 
 class Column:
