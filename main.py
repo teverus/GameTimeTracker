@@ -27,6 +27,9 @@ from Code.functions.db import append_to_table, update_a_table, read_table
 
 # TODO Добавить заголовки колонок
 # TODO Можно не указывать table_width
+# TODO Несколько table.highlight
+# TODO объединить stats и info
+# TODO перенести в config table_width, table_title, polling_timeout
 
 
 class Application:
@@ -37,7 +40,7 @@ class Application:
         self.stats = {}
         self.df = read_table(GAME_TIME, FILES)
         self.applications = self.get_applications()
-        self.stats_v2 = {
+        self.info = {
             application: {LAST_START: "", LAST_FINISH: ""}
             for application in sorted([a[NAME] for a in self.applications])
         }
@@ -52,8 +55,7 @@ class Application:
         self.get_last_start_and_finish_time_for_each_game()
 
         rows = [
-            [key, value[TOTAL], value[LAST_START], value[LAST_FINISH]]
-            for key, value in self.stats_v2.items()
+            [k, v[TOTAL], v[LAST_START], v[LAST_FINISH]] for k, v in self.info.items()
         ]
 
         self.table = BaseTable(
@@ -171,15 +173,15 @@ class Application:
             hours = int(time_spent / 3600)
             minutes = int((time_spent - (hours * 3600)) / 60)
             seconds = time_spent - (hours * 3600) - (minutes * 60)
-            self.stats_v2[app_name][TOTAL] = f"{hours:02}:{minutes:02}:{seconds:02}"
+            self.info[app_name][TOTAL] = f"{hours:02}:{minutes:02}:{seconds:02}"
 
     def get_last_start_and_finish_time_for_each_game(self):
-        for application in self.stats_v2:
+        for application in self.info:
             last_start = self.df.loc[self.df.Name == application].Start.values[-1]
             last_finish = self.df.loc[self.df.Name == application].Finish.values[-1]
 
-            self.stats_v2[application][LAST_START] = last_start
-            self.stats_v2[application][LAST_FINISH] = last_finish
+            self.info[application][LAST_START] = last_start
+            self.info[application][LAST_FINISH] = last_finish
 
 
 if __name__ == "__main__":
