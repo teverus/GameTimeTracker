@@ -21,6 +21,9 @@ from Code.constants import (
     LAST_START,
     LAST_FINISH,
     TOTAL,
+    TABLE_WIDTH,
+    SETTINGS,
+    APPLICATIONS, TABLE_TITLE, POLLING_TIMEOUT,
 )
 from Code.functions.db import append_to_table, update_a_table, read_table
 
@@ -29,17 +32,19 @@ from Code.functions.db import append_to_table, update_a_table, read_table
 # TODO Можно не указывать table_width
 # TODO Несколько table.highlight
 # TODO объединить stats и info
-# TODO перенести в config table_width, table_title, polling_timeout
 
 
 class Application:
     def __init__(self):
         os.system("cls")
 
+        self.config = self.get_config()
+        self.settings = self.config[SETTINGS]
+        self.applications = self.config[APPLICATIONS]
+
         self.polling_timeout = 1
         self.stats = {}
         self.df = read_table(GAME_TIME, FILES)
-        self.applications = self.get_applications()
         self.info = {
             application: {LAST_START: "", LAST_FINISH: ""}
             for application in sorted([a[NAME] for a in self.applications])
@@ -59,9 +64,9 @@ class Application:
         ]
 
         self.table = BaseTable(
-            table_title="Game time statistics",
+            table_title=self.settings[TABLE_TITLE],
             rows=rows,
-            table_width=91,
+            table_width=self.settings[TABLE_WIDTH],
             column_widths={
                 0: ColumnWidth.FULL,
                 1: ColumnWidth.FIT,
@@ -114,7 +119,7 @@ class Application:
 
                         self.table.print_table()
 
-                sleep(self.polling_timeout)
+                sleep(self.settings[POLLING_TIMEOUT])
 
     @staticmethod
     def check_if_process_exists(process_name):
@@ -157,11 +162,6 @@ class Application:
         )
 
     @staticmethod
-    def get_applications():
-        with open("config.yml", "r") as stream:
-            return yaml.safe_load(stream)["applications"]
-
-    @staticmethod
     def get_time_in_seconds(time_as_string):
         time = dt.strptime(time_as_string, "%H:%M:%S")
         delta = timedelta(hours=time.hour, minutes=time.minute, seconds=time.second)
@@ -193,6 +193,11 @@ class Application:
 
             self.info[application][LAST_START] = last_start
             self.info[application][LAST_FINISH] = last_finish
+
+    @staticmethod
+    def get_config():
+        with open("config.yml", "r") as stream:
+            return yaml.safe_load(stream)
 
 
 if __name__ == "__main__":

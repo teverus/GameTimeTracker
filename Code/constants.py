@@ -13,6 +13,13 @@ TOTAL = "total"
 LAST_START = "last start"
 LAST_FINISH = "last finish"
 
+TABLE_WIDTH = "table_width"
+TABLE_TITLE = "table_title"
+
+SETTINGS = "settings"
+APPLICATIONS = "applications"
+POLLING_TIMEOUT = "polling_timeout"
+
 
 class Column:
     NAME = "Name"
