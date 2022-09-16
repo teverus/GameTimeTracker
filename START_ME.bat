@@ -1,6 +1,6 @@
 @echo off
 mode con: cols=107 lines=38
-title=Finnish Learner
+title=Game Time Tracker
 
 : ==================================
 : Installing virtual environment

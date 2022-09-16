@@ -51,7 +51,7 @@ class Application:
 
     def show_application_stats(self):
 
-        self.get_total_time_for_each_game()
+        self.get_total_time_for_all_games()
         self.get_last_start_and_finish_time_for_each_game()
 
         rows = [
@@ -73,6 +73,7 @@ class Application:
 
     def start_tracking_applications(self):
 
+        total = 1
         start = 2
         finish = 3
 
@@ -107,6 +108,8 @@ class Application:
                         self.stats[app_name][PROCESS_IS_ACTIVE] = False
 
                         self.table.rows_raw[i][finish] = self.stats[app_name][FINISH]
+                        total_time = self.get_total_time_for_a_single_game(app_name)
+                        self.table.rows_raw[i][total] = total_time
                         self.table.highlight = None
 
                         self.table.print_table()
@@ -165,15 +168,23 @@ class Application:
 
         return int(delta.total_seconds())
 
-    def get_total_time_for_each_game(self):
+    def get_total_time_for_all_games(self):
         for application in self.applications:
             app_name = application[NAME]
-            time_spent_stats = self.df.loc[self.df.Name == app_name].Spent
-            time_spent = sum([self.get_time_in_seconds(t) for t in time_spent_stats])
-            hours = int(time_spent / 3600)
-            minutes = int((time_spent - (hours * 3600)) / 60)
-            seconds = time_spent - (hours * 3600) - (minutes * 60)
-            self.info[app_name][TOTAL] = f"{hours:02}:{minutes:02}:{seconds:02}"
+            total_time = self.get_total_time_for_a_single_game(app_name)
+
+            self.info[app_name][TOTAL] = total_time
+
+    def get_total_time_for_a_single_game(self, app_name):
+        df = read_table(GAME_TIME, FILES)
+
+        time_spent_stats = df.loc[df.Name == app_name].Spent
+        time_spent = sum([self.get_time_in_seconds(t) for t in time_spent_stats])
+        hours = int(time_spent / 3600)
+        minutes = int((time_spent - (hours * 3600)) / 60)
+        seconds = time_spent - (hours * 3600) - (minutes * 60)
+
+        return f"{hours:02}:{minutes:02}:{seconds:02}"
 
     def get_last_start_and_finish_time_for_each_game(self):
         for application in self.info:
