@@ -29,9 +29,9 @@ from Code.functions.db import append_to_table, update_a_table, read_table
 
 
 # TODO Добавить заголовки колонок
+# TODO Проверять наличие файла и создавать при его отсутствии
 # TODO Можно не указывать table_width
 # TODO Несколько table.highlight
-# TODO объединить stats и info
 
 
 class Application:
@@ -43,7 +43,6 @@ class Application:
         self.applications = self.config[APPLICATIONS]
 
         self.polling_timeout = 1
-        self.stats = {}
         self.df = read_table(GAME_TIME, FILES)
         self.info = {
             application: {LAST_START: "", LAST_FINISH: ""}
@@ -88,31 +87,31 @@ class Application:
                 app_name = application[NAME]
                 app_process = application[PROCESS]
 
-                if app_name not in self.stats:
-                    self.stats[app_name] = {PROCESS_IS_ACTIVE: False}
+                if PROCESS_IS_ACTIVE not in self.info[app_name]:
+                    self.info[app_name][PROCESS_IS_ACTIVE] = False
 
                 if self.check_if_process_exists(app_process):
-                    if not self.stats[app_name][PROCESS_IS_ACTIVE]:
-                        self.stats[app_name][START] = self.get_time()
+                    if not self.info[app_name][PROCESS_IS_ACTIVE]:
+                        self.info[app_name][START] = self.get_time()
                         self.record_app_name_and_start_time(app_name)
 
-                        self.stats[app_name][PROCESS_IS_ACTIVE] = True
+                        self.info[app_name][PROCESS_IS_ACTIVE] = True
 
-                        self.table.rows_raw[i][start] = self.stats[app_name][START]
+                        self.table.rows_raw[i][start] = self.info[app_name][START]
                         self.table.rows_raw[i][finish] = " "
                         self.table.highlight = [i, 0]
 
                         self.table.print_table()
 
                 else:
-                    if self.stats[app_name][PROCESS_IS_ACTIVE]:
-                        self.stats[app_name][FINISH] = self.get_time()
+                    if self.info[app_name][PROCESS_IS_ACTIVE]:
+                        self.info[app_name][FINISH] = self.get_time()
                         self.record_finish_time(app_name)
                         self.record_time_spent(app_name)
 
-                        self.stats[app_name][PROCESS_IS_ACTIVE] = False
+                        self.info[app_name][PROCESS_IS_ACTIVE] = False
 
-                        self.table.rows_raw[i][finish] = self.stats[app_name][FINISH]
+                        self.table.rows_raw[i][finish] = self.info[app_name][FINISH]
                         total_time = self.get_total_time_for_a_single_game(app_name)
                         self.table.rows_raw[i][total] = total_time
                         self.table.highlight = None
@@ -134,27 +133,27 @@ class Application:
     def record_app_name_and_start_time(self, app_name):
         df = DataFrame([], columns=Column.ALL)
         df.loc[0, Column.NAME] = app_name
-        df.loc[0, Column.START] = self.stats[app_name][START]
+        df.loc[0, Column.START] = self.info[app_name][START]
         append_to_table(df, GAME_TIME, FILES)
 
     def record_finish_time(self, app_name):
         update_a_table(
             x_column=Column.START,
-            x_value=self.stats[app_name][START],
+            x_value=self.info[app_name][START],
             y_column=Column.FINISH,
-            new_value=self.stats[app_name][FINISH],
+            new_value=self.info[app_name][FINISH],
             table_name=GAME_TIME,
             folder=FILES,
         )
 
     def record_time_spent(self, app_name):
-        time_start = dt.strptime(self.stats[app_name][START], TIME_FORMAT)
-        time_finish = dt.strptime(self.stats[app_name][FINISH], TIME_FORMAT)
+        time_start = dt.strptime(self.info[app_name][START], TIME_FORMAT)
+        time_finish = dt.strptime(self.info[app_name][FINISH], TIME_FORMAT)
         time_spend = str(time_finish - time_start)
 
         update_a_table(
             x_column=Column.START,
-            x_value=self.stats[app_name][START],
+            x_value=self.info[app_name][START],
             y_column=Column.SPENT,
             new_value=time_spend,
             table_name=GAME_TIME,
