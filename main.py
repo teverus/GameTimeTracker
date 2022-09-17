@@ -31,7 +31,6 @@ from Code.functions.db import append_to_table, update_a_table, read_table
 # TODO Добавить заголовки колонок
 # TODO Проверять наличие файла и создавать при его отсутствии
 # TODO Можно не указывать table_width
-# TODO Несколько table.highlight
 
 
 class Application:
@@ -58,13 +57,11 @@ class Application:
         self.get_total_time_for_all_games()
         self.get_last_start_and_finish_time_for_each_game()
 
-        rows = [
-            [k, v[TOTAL], v[LAST_START], v[LAST_FINISH]] for k, v in self.info.items()
-        ]
+        r = [[k, v[TOTAL], v[LAST_START], v[LAST_FINISH]] for k, v in self.info.items()]
 
         self.table = BaseTable(
             table_title=self.settings[TABLE_TITLE],
-            rows=rows,
+            rows=r,
             table_width=self.settings[TABLE_WIDTH],
             column_widths={
                 0: ColumnWidth.FULL,
@@ -99,7 +96,7 @@ class Application:
 
                         self.table.rows_raw[i][start] = self.info[app_name][START]
                         self.table.rows_raw[i][finish] = " "
-                        self.table.highlight = [i, 0]
+                        self.table.highlight.append([i, 0])
 
                         self.table.print_table()
 
@@ -114,7 +111,7 @@ class Application:
                         self.table.rows_raw[i][finish] = self.info[app_name][FINISH]
                         total_time = self.get_total_time_for_a_single_game(app_name)
                         self.table.rows_raw[i][total] = total_time
-                        self.table.highlight = None
+                        self.table.highlight.remove([i, 0])
 
                         self.table.print_table()
 

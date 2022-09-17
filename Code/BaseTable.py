@@ -116,7 +116,7 @@ class BaseTable:
                     data = data[: -abs((len(data) - width) + 3)]
                     data = f"{data}..."
                 highlighted = f"{HIGHLIGHT}{data}{END_HIGHLIGHT}"
-                data = highlighted if [row, column] == self.highlight else data
+                data = highlighted if [row, column] in self.highlight else data
                 a_row.append(data)
             print(f" {' | '.join(a_row)} ")
 
@@ -297,13 +297,18 @@ class BaseTable:
             return self.rows_raw
 
     def adjust_highlight_if_needed(self):
+        highlight = self.highlight
+        max_length = len(self.df) - 1
+        result = []
+
         if self.highlight:
-            x, y = self.highlight
-            max_length = len(self.df) - 1
+            highlights = [highlight] if isinstance(highlight[0], int) else highlight
+            for pair in highlights:
+                x, y = pair
+                proper_highlight = [max_length, y] if x > max_length else [x, y]
+                result.append(proper_highlight)
 
-            highlight = [max_length, y] if x > max_length else [x, y]
-
-            return highlight
+        return result
 
     @staticmethod
     def get_max_columns(rows):
