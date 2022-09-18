@@ -115,7 +115,7 @@ class BaseTable:
             headers_line = []
 
             for i, header in enumerate(self.headers):
-                header = header.upper() if self. headers_caps else header
+                header = header.upper() if self.headers_caps else header
                 h = header.center if self.headers_centered else header.ljust
                 header = h(self.column_widths[i])
                 headers_line.append(f" {header} ")
@@ -124,8 +124,15 @@ class BaseTable:
 
         # Rows top border
         if self.rows_top_border:
-            # TODO ! Вот тут нужны крестики на местах пересечения если есть headers
-            print(self.rows_top_border * self.border_length)
+            if self.headers:
+                border = self.rows_top_border
+                border_line = [
+                    f"{border}{border * self.column_widths[key]}{border}"
+                    for key in sorted(self.column_widths.keys())
+                ]
+                print("+".join(border_line))
+            else:
+                print(self.rows_top_border * self.border_length)
 
         # Rows
         self.df = self.get_df()
@@ -185,7 +192,6 @@ class BaseTable:
 
     def get_column_widths(self, target_widths):
 
-        # TODO ! Вот тут нужно учитывать headers
         if target_widths and len(target_widths) != len(self.rows[0]):
             raise Exception("\nColumn number and column widths number don't match!!!")
 
