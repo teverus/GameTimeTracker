@@ -28,10 +28,6 @@ from Code.constants import (
 from Code.functions.db import append_to_table, update_a_table, read_table
 
 
-# TODO Добавить заголовки колонок
-# TODO Проверять наличие файла и создавать при его отсутствии
-
-
 class Application:
     def __init__(self):
         os.system("cls")
@@ -60,7 +56,9 @@ class Application:
 
         self.table = BaseTable(
             table_title=self.settings[TABLE_TITLE],
+            headers=["Name", "Total time", "Last start", "Last finish"],
             rows=r,
+            rows_top_border="-",
             column_widths={
                 0: ColumnWidth.FULL,
                 1: ColumnWidth.FIT,

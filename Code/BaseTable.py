@@ -29,6 +29,11 @@ class BaseTable:
         table_title_centered=True,
         table_title_caps=True,
         table_title_top_border="=",
+        # Headers
+        headers: list = None,
+        headers_centered=True,
+        headers_caps=False,
+        headers_border="=",
         # General table
         table_width=None,
         highlight=None,
@@ -56,6 +61,12 @@ class BaseTable:
         self.table_title_centered = table_title_centered
         self.table_title_caps = table_title_caps
         self.table_title_top_border = table_title_top_border
+
+        # === Headers
+        self.headers = headers
+        self.headers_centered = headers_centered
+        self.headers_caps = headers_caps
+        self.headers_top_border = headers_border
 
         # === Rows
         self.rows_raw = rows
@@ -98,8 +109,22 @@ class BaseTable:
             tt = self.table_title.center if centered else self.table_title.ljust
             print(tt(self.border_length))
 
+        # Headers
+        if self.headers:
+            print(f"{self.headers_top_border * self.border_length}")
+            headers_line = []
+
+            for i, header in enumerate(self.headers):
+                header = header.upper() if self. headers_caps else header
+                h = header.center if self.headers_centered else header.ljust
+                header = h(self.column_widths[i])
+                headers_line.append(f" {header} ")
+
+            print("|".join(headers_line))
+
         # Rows top border
         if self.rows_top_border:
+            # TODO ! Вот тут нужны крестики на местах пересечения если есть headers
             print(self.rows_top_border * self.border_length)
 
         # Rows
@@ -160,6 +185,7 @@ class BaseTable:
 
     def get_column_widths(self, target_widths):
 
+        # TODO ! Вот тут нужно учитывать headers
         if target_widths and len(target_widths) != len(self.rows[0]):
             raise Exception("\nColumn number and column widths number don't match!!!")
 
@@ -174,7 +200,8 @@ class BaseTable:
             for col_index, width_type in expected_widths.items():
                 if self.table_width:
                     if width_type == ColumnWidth.FIT:
-                        target_length = max([len(r[col_index]) for r in self.rows])
+                        cols = self.rows + [self.headers] if self.headers else self.rows
+                        target_length = max([len(r[col_index]) for r in cols])
 
                     else:
                         already_used = sum([v for v in column_widths.values()])
@@ -326,7 +353,8 @@ class BaseTable:
 
         if not table_width:
             calculated = {i: 0 for i in range(len(self.rows[0]))}
-            for row in self.rows:
+            rows = self.rows + [self.headers] if self.headers else self.rows
+            for row in rows:
                 for index_col, col in enumerate(row):
                     if len(col) > calculated[index_col]:
                         calculated[index_col] = len(col)
