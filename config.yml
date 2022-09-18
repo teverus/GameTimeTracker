@@ -1,5 +1,4 @@
 settings:
-  table_width: 91
   table_title: "Game time statistics"
   polling_timeout: 1 # In seconds
 

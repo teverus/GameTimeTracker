@@ -44,7 +44,6 @@ class BaseTable:
         footer_actions=None,
     ):
         # === General settings
-        self.table_width = table_width
         self.highlight = highlight
         self.highlight_footer = highlight_footer
         self.max_rows = max_rows if max_rows else len(rows)
@@ -76,6 +75,7 @@ class BaseTable:
 
         # Calculated values
         self.df = self.get_df()
+        self.table_width = self.get_table_width(table_width)
         self.column_widths = self.get_column_widths(column_widths)
         self.border_length = self.get_border_length()
         self.cage = self.get_cage()
@@ -160,7 +160,7 @@ class BaseTable:
 
     def get_column_widths(self, target_widths):
 
-        if len(target_widths) != len(self.rows[0]):
+        if target_widths and len(target_widths) != len(self.rows[0]):
             raise Exception("\nColumn number and column widths number don't match!!!")
 
         actual_width = self.table_width - (((self.max_columns - 1) * 3) + 2)
@@ -320,3 +320,21 @@ class BaseTable:
         proper_row = len(row) if isinstance(row, list) else len([row])
 
         return proper_row != 1
+
+    def get_table_width(self, table_width):
+        calculated_table_width = None
+
+        if not table_width:
+            calculated = {i: 0 for i in range(len(self.rows[0]))}
+            for row in self.rows:
+                for index_col, col in enumerate(row):
+                    if len(col) > calculated[index_col]:
+                        calculated[index_col] = len(col)
+
+            actual_width = sum(calculated.values())
+            paddings = len(calculated) * 2
+            walls = len(calculated) - 1
+
+            calculated_table_width = actual_width + paddings + walls
+
+        return calculated_table_width if not table_width else table_width

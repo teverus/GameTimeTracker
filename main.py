@@ -30,7 +30,6 @@ from Code.functions.db import append_to_table, update_a_table, read_table
 
 # TODO Добавить заголовки колонок
 # TODO Проверять наличие файла и создавать при его отсутствии
-# TODO Можно не указывать table_width
 
 
 class Application:
@@ -62,7 +61,6 @@ class Application:
         self.table = BaseTable(
             table_title=self.settings[TABLE_TITLE],
             rows=r,
-            table_width=self.settings[TABLE_WIDTH],
             column_widths={
                 0: ColumnWidth.FULL,
                 1: ColumnWidth.FIT,
@@ -184,8 +182,12 @@ class Application:
 
     def get_last_start_and_finish_time_for_each_game(self):
         for application in self.info:
-            last_start = self.df.loc[self.df.Name == application].Start.values[-1]
-            last_finish = self.df.loc[self.df.Name == application].Finish.values[-1]
+            try:
+                last_start = self.df.loc[self.df.Name == application].Start.values[-1]
+                last_finish = self.df.loc[self.df.Name == application].Finish.values[-1]
+            except IndexError:
+                last_start = "---"
+                last_finish = "---"
 
             self.info[application][LAST_START] = last_start
             self.info[application][LAST_FINISH] = last_finish
