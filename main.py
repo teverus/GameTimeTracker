@@ -27,6 +27,8 @@ from Code.constants import (
 )
 from Code.functions.db import append_to_table, update_a_table, read_table
 
+# TODO Динамическая ширина колонок!
+
 
 class Application:
     def __init__(self):
@@ -155,10 +157,14 @@ class Application:
 
     @staticmethod
     def get_time_in_seconds(time_as_string):
-        time = dt.strptime(time_as_string, "%H:%M:%S")
-        delta = timedelta(hours=time.hour, minutes=time.minute, seconds=time.second)
+        try:
+            time = dt.strptime(time_as_string, "%H:%M:%S")
+            delta = timedelta(hours=time.hour, minutes=time.minute, seconds=time.second)
 
-        return int(delta.total_seconds())
+            return int(delta.total_seconds())
+
+        except TypeError:
+            return 0
 
     def get_total_time_for_all_games(self):
         for application in self.applications:
@@ -186,6 +192,8 @@ class Application:
             except IndexError:
                 last_start = "---"
                 last_finish = "---"
+
+            last_finish = "error" if not last_finish else last_finish
 
             self.info[application][LAST_START] = last_start
             self.info[application][LAST_FINISH] = last_finish
