@@ -23,7 +23,9 @@ from Code.constants import (
     TOTAL,
     TABLE_WIDTH,
     SETTINGS,
-    APPLICATIONS, TABLE_TITLE, POLLING_TIMEOUT,
+    APPLICATIONS,
+    TABLE_TITLE,
+    POLLING_TIMEOUT, STUB,
 )
 from Code.functions.db import append_to_table, update_a_table, read_table
 
@@ -36,7 +38,8 @@ class Application:
 
         self.config = self.get_config()
         self.settings = self.config[SETTINGS]
-        self.applications = self.config[APPLICATIONS]
+        apps = self.config[APPLICATIONS]
+        self.applications = STUB if apps is None else apps
 
         self.polling_timeout = 1
         self.df = read_table(GAME_TIME, FILES)

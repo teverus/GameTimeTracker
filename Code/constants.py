@@ -20,6 +20,8 @@ SETTINGS = "settings"
 APPLICATIONS = "applications"
 POLLING_TIMEOUT = "polling_timeout"
 
+STUB = [{"name": "---", "process": "---"}]
+
 
 class Column:
     NAME = "Name"
@@ -30,5 +32,3 @@ class Column:
     ALL = [NAME, START, FINISH, SPENT]
 
 
-APP_NAME = "Notepad"
-APP_PROCESS = "notepad.exe"
