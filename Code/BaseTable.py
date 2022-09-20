@@ -87,12 +87,12 @@ class BaseTable:
         # Calculated values
         self.df = self.get_df()
         self.table_width_raw = table_width
-        self.table_width = self.get_table_width()
         self.column_widths_raw = column_widths
-        self.column_widths = self.get_column_widths()
-        self.border_length = self.get_border_length()
         self.cage = self.get_cage()
         self.pagination = self.get_pagination()
+        self.table_width = self.get_table_width()
+        self.column_widths = self.get_column_widths()
+        self.border_length = self.get_border_length()
 
     def print_table(self):
 
