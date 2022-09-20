@@ -86,13 +86,19 @@ class BaseTable:
 
         # Calculated values
         self.df = self.get_df()
-        self.table_width = self.get_table_width(table_width)
-        self.column_widths = self.get_column_widths(column_widths)
+        self.table_width_raw = table_width
+        self.table_width = self.get_table_width()
+        self.column_widths_raw = column_widths
+        self.column_widths = self.get_column_widths()
         self.border_length = self.get_border_length()
         self.cage = self.get_cage()
         self.pagination = self.get_pagination()
 
     def print_table(self):
+
+        self.table_width = self.get_table_width()
+        self.column_widths = self.get_column_widths()
+        self.border_length = self.get_border_length()
 
         os.system("cls")
         bext.hide()
@@ -190,7 +196,8 @@ class BaseTable:
 
         return df
 
-    def get_column_widths(self, target_widths):
+    def get_column_widths(self):
+        target_widths = self.column_widths_raw
 
         if target_widths and len(target_widths) != len(self.rows[0]):
             raise Exception("\nColumn number and column widths number don't match!!!")
@@ -354,7 +361,8 @@ class BaseTable:
 
         return proper_row != 1
 
-    def get_table_width(self, table_width):
+    def get_table_width(self):
+        table_width = self.table_width_raw
         calculated_table_width = None
 
         if not table_width:
