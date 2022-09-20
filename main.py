@@ -41,7 +41,7 @@ class Application:
 
         self.df = read_table(GAME_TIME, FILES)
         self.info = {
-            application: {LAST_START: "", LAST_FINISH: ""}
+            application: {LAST_START: "", LAST_FINISH: "", PROCESS_IS_ACTIVE: False}
             for application in sorted([a[NAME] for a in self.applications])
         }
         self.table = None
@@ -71,7 +71,6 @@ class Application:
         self.table.print_table()
 
     def start_tracking_applications(self):
-
         total = 1
         start = 2
         finish = 3
@@ -81,37 +80,34 @@ class Application:
             for i, application in enumerate(self.applications):
                 app_name = application[NAME]
                 app_process = application[PROCESS]
+                process_exists = bool(self.check_if_process_exists(app_process))
+                is_active = self.info[app_name][PROCESS_IS_ACTIVE]
 
-                if PROCESS_IS_ACTIVE not in self.info[app_name]:
+                if process_exists and not is_active:
+                    self.info[app_name][START] = self.get_time()
+                    self.record_app_name_and_start_time(app_name)
+
+                    self.info[app_name][PROCESS_IS_ACTIVE] = True
+
+                    self.table.rows_raw[i][start] = self.info[app_name][START]
+                    self.table.rows_raw[i][finish] = " "
+                    self.table.highlight.append([i, 0])
+
+                    self.table.print_table()
+
+                elif not process_exists and is_active:
+                    self.info[app_name][FINISH] = self.get_time()
+                    self.record_finish_time(app_name)
+                    self.record_time_spent(app_name)
+
                     self.info[app_name][PROCESS_IS_ACTIVE] = False
 
-                if self.check_if_process_exists(app_process):
-                    if not self.info[app_name][PROCESS_IS_ACTIVE]:
-                        self.info[app_name][START] = self.get_time()
-                        self.record_app_name_and_start_time(app_name)
+                    self.table.rows_raw[i][finish] = self.info[app_name][FINISH]
+                    total_time = self.get_total_time_for_a_single_game(app_name)
+                    self.table.rows_raw[i][total] = total_time
+                    self.table.highlight.remove([i, 0])
 
-                        self.info[app_name][PROCESS_IS_ACTIVE] = True
-
-                        self.table.rows_raw[i][start] = self.info[app_name][START]
-                        self.table.rows_raw[i][finish] = " "
-                        self.table.highlight.append([i, 0])
-
-                        self.table.print_table()
-
-                else:
-                    if self.info[app_name][PROCESS_IS_ACTIVE]:
-                        self.info[app_name][FINISH] = self.get_time()
-                        self.record_finish_time(app_name)
-                        self.record_time_spent(app_name)
-
-                        self.info[app_name][PROCESS_IS_ACTIVE] = False
-
-                        self.table.rows_raw[i][finish] = self.info[app_name][FINISH]
-                        total_time = self.get_total_time_for_a_single_game(app_name)
-                        self.table.rows_raw[i][total] = total_time
-                        self.table.highlight.remove([i, 0])
-
-                        self.table.print_table()
+                    self.table.print_table()
 
                 sleep(self.settings[POLLING_TIMEOUT])
 
