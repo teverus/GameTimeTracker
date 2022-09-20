@@ -21,15 +21,13 @@ from Code.constants import (
     LAST_START,
     LAST_FINISH,
     TOTAL,
-    TABLE_WIDTH,
     SETTINGS,
     APPLICATIONS,
     TABLE_TITLE,
-    POLLING_TIMEOUT, STUB,
+    POLLING_TIMEOUT,
+    STUB,
 )
 from Code.functions.db import append_to_table, update_a_table, read_table
-
-# TODO Динамическая ширина колонок!
 
 
 class Application:
@@ -41,7 +39,6 @@ class Application:
         apps = self.config[APPLICATIONS]
         self.applications = STUB if apps is None else apps
 
-        self.polling_timeout = 1
         self.df = read_table(GAME_TIME, FILES)
         self.info = {
             application: {LAST_START: "", LAST_FINISH: ""}
