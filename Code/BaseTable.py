@@ -73,7 +73,7 @@ class BaseTable:
         self.max_rows_raw = max_rows
         self.max_page = self.get_max_page()
         self.rows = self.get_rows()
-        self.rows_top_border = rows_top_border
+        self.rows_top_border = "-" if self.headers else rows_top_border
         self.rows_bottom_border = rows_bottom_border
         self.rows_centered = rows_centered
 

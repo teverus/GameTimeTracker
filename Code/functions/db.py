@@ -11,7 +11,7 @@ def get_connection(table_name: str, folder: str):
     return connect(f"{folder + '/' if folder else ''}{table_name}.db")
 
 
-def create_table(table_name: str, columns: list, folder: str = ""):
+def create_table(table_name: str, columns: list, folder: str = FILES):
     connection = get_connection(table_name, folder)
     df = DataFrame([], columns=columns)
     df.to_sql(f"{table_name}", connection, index=False, if_exists="replace")
@@ -47,7 +47,7 @@ def update_a_table(
     write_to_table(df, table_name, folder)
 
 
-def read_table(table_name, folder: str = "") -> DataFrame:
+def read_table(table_name, folder: str = FILES) -> DataFrame:
     connection = get_connection(table_name, folder)
     return pd.read_sql(f"select * from {table_name}", connection)
 

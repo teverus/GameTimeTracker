@@ -27,7 +27,7 @@ from Code.constants import (
     POLLING_TIMEOUT,
     STUB,
 )
-from Code.functions.db import append_to_table, update_a_table, read_table
+from Code.functions.db import append_to_table, update_a_table, read_table, create_table
 
 
 class Application:
@@ -36,13 +36,14 @@ class Application:
 
         self.config = self.get_config()
         self.settings = self.config[SETTINGS]
-        apps = self.config[APPLICATIONS]
-        self.applications = STUB if apps is None else apps
+        self.applications = self.config[APPLICATIONS]
+        self.applications = STUB if self.applications is None else self.applications
 
-        self.df = read_table(GAME_TIME, FILES)
+        self.check_if_database_exists()
+        self.df = read_table(GAME_TIME)
         self.info = {
             application: {LAST_START: "", LAST_FINISH: "", PROCESS_IS_ACTIVE: False}
-            for application in sorted([a[NAME] for a in self.applications])
+            for application in sorted([app[NAME] for app in self.applications])
         }
         self.table = None
 
@@ -53,22 +54,7 @@ class Application:
 
         self.get_total_time_for_all_games()
         self.get_last_start_and_finish_time_for_each_game()
-
-        r = [[k, v[TOTAL], v[LAST_START], v[LAST_FINISH]] for k, v in self.info.items()]
-
-        self.table = BaseTable(
-            table_title=self.settings[TABLE_TITLE],
-            headers=["Name", "Total time", "Last start", "Last finish"],
-            rows=r,
-            rows_top_border="-",
-            column_widths={
-                0: ColumnWidth.FULL,
-                1: ColumnWidth.FIT,
-                2: ColumnWidth.FIT,
-                3: ColumnWidth.FIT,
-            },
-        )
-        self.table.print_table()
+        self.print_table_with_current_info()
 
     def start_tracking_applications(self):
         total = 1
@@ -110,6 +96,22 @@ class Application:
                     self.table.print_table()
 
                 sleep(self.settings[POLLING_TIMEOUT])
+
+    def print_table_with_current_info(self):
+        r = [[k, v[TOTAL], v[LAST_START], v[LAST_FINISH]] for k, v in self.info.items()]
+
+        self.table = BaseTable(
+            table_title=self.settings[TABLE_TITLE],
+            headers=["Name", "Total time", "Last start", "Last finish"],
+            rows=r,
+            column_widths={
+                0: ColumnWidth.FULL,
+                1: ColumnWidth.FIT,
+                2: ColumnWidth.FIT,
+                3: ColumnWidth.FIT,
+            },
+        )
+        self.table.print_table()
 
     @staticmethod
     def check_if_process_exists(process_name):
@@ -163,6 +165,7 @@ class Application:
             return 0
 
     def get_total_time_for_all_games(self):
+        """Record total time to self.info"""
         for application in self.applications:
             app_name = application[NAME]
             total_time = self.get_total_time_for_a_single_game(app_name)
@@ -170,7 +173,7 @@ class Application:
             self.info[app_name][TOTAL] = total_time
 
     def get_total_time_for_a_single_game(self, app_name):
-        df = read_table(GAME_TIME, FILES)
+        df = read_table(GAME_TIME)
 
         time_spent_stats = df.loc[df.Name == app_name].Spent
         time_spent = sum([self.get_time_in_seconds(t) for t in time_spent_stats])
@@ -181,6 +184,7 @@ class Application:
         return f"{hours:02}:{minutes:02}:{seconds:02}"
 
     def get_last_start_and_finish_time_for_each_game(self):
+        """Record last start/finish time to self.info"""
         for application in self.info:
             try:
                 last_start = self.df.loc[self.df.Name == application].Start.values[-1]
@@ -198,6 +202,14 @@ class Application:
     def get_config():
         with open("config.yml", "r") as stream:
             return yaml.safe_load(stream)
+
+    @staticmethod
+    def check_if_database_exists():
+        db_exists = os.path.exists(os.path.join(FILES, f"{GAME_TIME}.db"))
+
+        if not db_exists:
+            create_table(GAME_TIME, Column.ALL)
+            assert os.path.exists(os.path.join(FILES, f"{GAME_TIME}.db"))
 
 
 if __name__ == "__main__":
